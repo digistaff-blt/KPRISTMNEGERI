@@ -4,8 +4,8 @@
     <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aplikasi Koperasi</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="https://drive.google.com/uc?export=view&id=1au2P07QwprsHSGBH6_G9UATZhupRPc_m">
-    <link rel="icon" type="image/png" sizes="16x16" href="https://drive.google.com/uc?export=view&id=195-7yLhAbuerGUM-K_rdrG5NH4ayl2E5">
+    
+    <link rel="icon" href="https://drive.google.com/thumbnail?id=1au2P07QwprsHSGBH6_G9UATZhupRPc_m&sz=s64" type="image/png">
     
     <style>
       /* --- GLOBAL STYLE --- */
@@ -55,9 +55,9 @@
         position: fixed; 
         top: 0; left: 0; 
         width: 100%; height: 100%; 
-        background: rgba(255, 255, 255, 0.5); /* Background transparan putih */
-        backdrop-filter: blur(8px); /* EFEK BLUR KUAT */
-        -webkit-backdrop-filter: blur(8px); /* Support Safari */
+        background: rgba(255, 255, 255, 0.5); 
+        backdrop-filter: blur(8px); 
+        -webkit-backdrop-filter: blur(8px); 
         z-index: 9999; 
         align-items: center; justify-content: center; 
         flex-direction: column;
@@ -142,7 +142,7 @@
             <tr>
               <th>Jenis Pinjaman</th>
               <th>Pinjaman Semula</th>
-              <th>Jgk. Pjm (bln)</th>
+              <th>Jgk. Pjm</th>
               <th>Tanggal</th>
               <th>Keterangan</th>
             </tr>
@@ -408,8 +408,6 @@
            document.getElementById('btn-download').style.display = 'none';
            document.querySelectorAll('.paper-input').forEach(el => el.disabled = true);
            
-           // Admin tidak perlu panggil cariAnggota disini karena dia manual cari.
-           // User biasa otomatis panggil.
            await cariAnggota(); 
         }
 
@@ -426,12 +424,10 @@
 
         showLoading(true); // START LOADING - Tampilan Blur
 
-        // 1. Bersihkan Data Lama dulu (Agar terlihat fresh)
         document.querySelectorAll('.paper-input').forEach(el => el.value = "");
         document.getElementById('disp-nama').innerText = "Memuat...";
         document.getElementById('disp-no-anggota').innerText = "---";
         
-        // 2. Cek User Validitas
         let resUser = await sendToGoogle('login', kode);
         if(resUser.status !== 'success') { 
             showLoading(false); 
@@ -444,12 +440,10 @@
         document.getElementById('disp-tahun').innerText = thn;
         document.getElementById('footer-date').innerText = bln + " " + thn;
 
-        // 3. Ambil Data Transaksi
         let resData = await sendToGoogle('getData', { bulan: bln, tahun: thn, kode: resUser.kode });
         
         if(resData.status === 'found') {
           const d = resData.data;
-          // Isi data perlahan
           for(let key in d) { 
             let el = document.getElementById(key); 
             if(el) el.value = d[key]; 
