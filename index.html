@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Koperasi</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://drive.google.com/uc?export=view&id=1au2P07QwprsHSGBH6_G9UATZhupRPc_m">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://drive.google.com/uc?export=view&id=195-7yLhAbuerGUM-K_rdrG5NH4ayl2E5">
+    
+    <style>
+      /* --- GLOBAL STYLE --- */
+      body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
+      .container { max-width: 950px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 10px; }
+
+      /* --- HEADER KOP --- */
+      .header-kop { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+      .header-left { flex: 0 0 100px; }
+      .kop-logo { width: 90px; height: auto; object-fit: contain; }
+      .header-center { flex: 1; text-align: center; }
+      .kop-title { font-weight: 800; font-size: 20px; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
+      .kop-subtitle { font-weight: 700; font-size: 22px; color: #1b5e20; margin-bottom: 5px; }
+      .kop-date { font-size: 14px; font-weight: 500; color: #555; }
+      .header-right { flex: 0 0 100px; display: flex; justify-content: flex-end; }
+      .nomor-anggota-badge { background: #fff9c4; border: 2px solid #333; padding: 8px 12px; font-size: 18px; font-weight: 800; border-radius: 6px; box-shadow: 4px 4px 0px rgba(0,0,0,0.8); min-width: 60px; text-align: center; }
+
+      /* --- CONTROLS --- */
+      .search-box { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; }
+      input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; outline: none; }
+      input:focus, select:focus { border-color: #1976d2; }
+      
+      button { padding: 10px 18px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+      button:active { transform: scale(0.98); }
+      .btn-cari { background: #2e7d32; color: white; } .btn-cari:hover { background: #1b5e20; }
+      .btn-blue { background: #1565c0; color: white; } .btn-blue:hover { background: #0d47a1; }
+      .btn-red { background: #c62828; color: white; } .btn-red:hover { background: #b71c1c; }
+      .btn-logout { background: #546e7a; color: white; } .btn-logout:hover { background: #455a64; }
+
+      /* --- TABEL --- */
+      table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
+      th, td { border: 1px solid #666; padding: 6px; vertical-align: middle; }
+      th { background-color: #bbdefb; text-align: center; font-weight: bold; color: #000; }
+      
+      .paper-input { width: 100%; border: none; outline: none; font-family: inherit; font-size: inherit; text-align: center; background: transparent; color: #000; font-weight: 500; }
+      .paper-input:focus { background: #fffbe6; border-bottom: 2px solid #1565c0; }
+      .paper-input:disabled { background: transparent; color: #333; cursor: default; border-bottom: none; }
+
+      /* COLORS */
+      .bg-org { background: #ffccbc !important; } .bg-grn { background: #c8e6c9 !important; } 
+      .bg-blu { background: #90caf9 !important; } .bg-gry { background: #f5f5f5 !important; } 
+      .bg-pnk { background: #f8bbd0 !important; } .bg-ylw { background: #ffe0b2 !important; }
+
+      /* --- LOADING OVERLAY DENGAN BLUR --- */
+      #loading-overlay { 
+        display: none; 
+        position: fixed; 
+        top: 0; left: 0; 
+        width: 100%; height: 100%; 
+        background: rgba(255, 255, 255, 0.5); /* Background transparan putih */
+        backdrop-filter: blur(8px); /* EFEK BLUR KUAT */
+        -webkit-backdrop-filter: blur(8px); /* Support Safari */
+        z-index: 9999; 
+        align-items: center; justify-content: center; 
+        flex-direction: column;
+      }
+      
+      .spinner { border: 5px solid #e0e0e0; border-top: 5px solid #2e7d32; border-radius: 50%; width: 50px; height: 50px; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      
+      .loading-text { font-weight: 700; color: #2e7d32; font-size: 16px; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
+
+      /* --- MODAL --- */
+      #modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: 9998; align-items: center; justify-content: center; }
+      .modal-box { background: white; width: 90%; max-width: 400px; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 30px rgba(0,0,0,0.3); animation: popUp 0.3s ease-out; }
+      @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      .modal-header { padding: 15px 20px; font-weight: bold; font-size: 16px; display: flex; align-items: center; gap: 10px; }
+      .modal-header.success { background: #e8f5e9; color: #2e7d32; border-bottom: 1px solid #c8e6c9; }
+      .modal-header.error { background: #ffebee; color: #c62828; border-bottom: 1px solid #ffcdd2; }
+      .modal-body { padding: 20px; font-size: 14px; color: #444; line-height: 1.5; }
+      .modal-footer { padding: 15px 20px; background: #fafafa; text-align: right; display: flex; justify-content: flex-end; gap: 10px; }
+      
+      /* LOGIN PAGE */
+      #view-login { display: flex; justify-content: center; align-items: center; min-height: 80vh; }
+      .login-card { width: 100%; max-width: 380px; padding: 40px; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
+      .login-btn { width: 100%; padding: 12px; background: #2e7d32; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Sedang Memuat Data...</div>
+    </div>
+
+    <div id="modal-overlay"><div class="modal-box"><div id="modal-header" class="modal-header"></div><div id="modal-body" class="modal-body"></div><div id="modal-footer" class="modal-footer"></div></div></div>
+
+    <div id="view-login">
+      <div class="login-card">
+        <img src="https://drive.google.com/thumbnail?id=1DnzIFA6MMk8Nm1hRlwe0N7D7NTawdkFN&sz=w400" alt="Logo" style="width:100px; margin-bottom:15px;">
+        <h2 style="margin:0 0 5px 0; color:#2e7d32;">KPRI STM Negeri</h2>
+        <p style="margin:0 0 20px 0; color:#666;">Silakan Masuk</p>
+        <input type="text" id="login-code" placeholder="Masukkan Kode Anggota / Nama" 
+               style="width:100%; box-sizing:border-box; text-align:center; padding:12px; font-size:16px; margin-bottom:10px;"
+               onkeydown="if(event.key === 'Enter') doAppLogin()">
+        <button class="login-btn" onclick="doAppLogin()">MASUK APLIKASI</button>
+      </div>
+    </div>
+
+    <div id="view-app" class="container" style="display:none;">
+      <div class="search-box">
+        <select id="admin-month" style="flex:1; min-width:100px;" onchange="autoRefreshData()">
+          <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option>
+          <option value="Mei">Mei</option><option value="Juni">Juni</option><option value="Juli">Juli</option><option value="Agustus">Agustus</option>
+          <option value="September">September</option><option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+        </select>
+        <select id="admin-year" onchange="autoRefreshData()"><option value="2025">2025</option><option value="2026">2026</option></select>
+        
+        <input type="text" id="input-kode" placeholder="Cari Anggota Lain..." style="flex:2;" onkeydown="if(event.key === 'Enter') cariAnggota()">
+        <button id="btn-cari" class="btn-cari" onclick="cariAnggota()">CARI DATA</button>
+      </div>
+
+      <div id="print-area" style="background:white; padding:10px;">
+        <div class="header-kop">
+          <div class="header-left">
+            <img src="https://drive.google.com/thumbnail?id=1DnzIFA6MMk8Nm1hRlwe0N7D7NTawdkFN&sz=w400" alt="Logo" class="kop-logo">
+          </div>
+          <div class="header-center">
+            <div class="kop-title">RINCIAN POTONGAN ANGGOTA</div>
+            <div class="kop-subtitle">KPRI "STM NEGERI BLITAR"</div>
+            <div class="kop-date">Bulan: <span id="disp-bulan">-</span> <span id="disp-tahun">-</span></div>
+          </div>
+          <div class="header-right">
+            <div class="nomor-anggota-badge" id="disp-no-anggota">---</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:15px; font-weight:bold; border-bottom:1px dashed #999; padding-bottom:5px; font-size:14px;">
+          Nama Anggota : <span id="disp-nama" style="color:#000;">---</span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Jenis Pinjaman</th>
+              <th>Pinjaman Semula</th>
+              <th>Jgk. Pjm (bln)</th>
+              <th>Tanggal</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:left">Uang</td>
+              <td><input class="paper-input" id="Pinjaman_Uang_Awal" onkeyup="formatRupiah(this)"></td>
+              <td><input class="paper-input" id="Pinjaman_Uang_Jgk"></td>
+              <td><input class="paper-input" id="Pinjaman_Uang_Tgl"></td>
+              <td><input class="paper-input" id="Pinjaman_Uang_Ket" style="text-align:left"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Barang</td>
+              <td><input class="paper-input" id="Pinjaman_Barang_Awal" onkeyup="formatRupiah(this)"></td>
+              <td><input class="paper-input" id="Pinjaman_Barang_Jgk"></td>
+              <td><input class="paper-input" id="Pinjaman_Barang_Tgl"></td>
+              <td><input class="paper-input" id="Pinjaman_Barang_Ket" style="text-align:left"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Insidental</td>
+              <td><input class="paper-input" id="Pinjaman_Ins_Awal" onkeyup="formatRupiah(this)"></td>
+              <td><input class="paper-input" id="Pinjaman_Ins_Jgk"></td>
+              <td><input class="paper-input" id="Pinjaman_Ins_Tgl"></td>
+              <td><input class="paper-input" id="Pinjaman_Ins_Ket" style="text-align:left"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Ibadah Keag.</td>
+              <td><input class="paper-input" id="Pinjaman_Ibd_Awal" onkeyup="formatRupiah(this)"></td>
+              <td><input class="paper-input" id="Pinjaman_Ibd_Jgk"></td>
+              <td><input class="paper-input" id="Pinjaman_Ibd_Tgl"></td>
+              <td><input class="paper-input" id="Pinjaman_Ibd_Ket" style="text-align:left"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="font-weight:bold; margin:15px 0 5px 0; text-decoration:underline;">Transaksi Keuangan :</div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width:35%">Jenis Perkiraan</th>
+              <th class="bg-org">Awal Bulan</th>
+              <th class="bg-grn">Pembayaran</th>
+              <th class="bg-blu">Sisa / Akhir</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:left">Pinjaman Uang</td>
+              <td class="bg-org"><input class="paper-input" id="Awal_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Bayar_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-blu"><input class="paper-input" id="Akhir_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Pinjaman Barang</td>
+              <td class="bg-org"><input class="paper-input" id="Awal_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Bayar_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-blu"><input class="paper-input" id="Akhir_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Pinjaman Insidental</td>
+              <td class="bg-org"><input class="paper-input" id="Awal_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Bayar_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-blu"><input class="paper-input" id="Akhir_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Pinj Ibdh. Keagamaan</td>
+              <td class="bg-org"><input class="paper-input" id="Awal_Pinj_Ibd" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Bayar_Pinj_Ibd" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-blu"><input class="paper-input" id="Akhir_Pinj_Ibd" onkeyup="formatRupiah(this)"></td>
+            </tr>
+
+            <tr style="height:5px; border:none;"><td colspan="4" style="border:none"></td></tr>
+
+            <tr>
+              <td style="text-align:left">Jasa Pinj. Uang</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Jasa_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Jasa_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Jasa_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Jasa Pinj. Barang</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Jasa_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Jasa_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Jasa_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Jasa Pinj. Insidental</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Jasa_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Jasa_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Jasa_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Jasa Ibdh. Keag</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Jasa_Pinj_Ibd" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Jasa_Pinj_Ibd" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Jasa_Pinj_Ibd" onkeyup="formatRupiah(this)"></td>
+            </tr>
+
+            <tr style="height:5px; border:none;"><td colspan="4" style="border:none"></td></tr>
+
+            <tr>
+              <td style="text-align:left">Simpanan Wajib</td>
+              <td class="bg-org"><input class="paper-input" id="Simpanan_Wajib_Awal" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Simpanan_Wajib_Bayar" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-blu"><input class="paper-input" id="Akhir_Simpanan_Wajib" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Simpanan Hari Raya</td>
+              <td class="bg-org"><input class="paper-input" id="Simpanan_HR_Awal" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Simpanan_HR_Bayar" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-blu"><input class="paper-input" id="Akhir_Simpanan_HR" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Simpanan Berjangka</td>
+              <td class="bg-org"><input class="paper-input" id="Simpanan_Bj_Awal" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Simpanan_Bj_Bayar" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-blu"><input class="paper-input" id="Akhir_Simpanan_Bj" onkeyup="formatRupiah(this)"></td>
+            </tr>
+
+            <tr style="height:5px; border:none;"><td colspan="4" style="border:none"></td></tr>
+
+            <tr>
+              <td style="text-align:left">Simpanan Par Pinj. Uang</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Par_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Par_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Par_Pinj_Uang" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Simpanan Par Pinj. Barang</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Par_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Par_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Par_Pinj_Barang" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Simpanan Par Pinj. Insidental</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Par_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Par_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Par_Pinj_Ins" onkeyup="formatRupiah(this)"></td>
+            </tr>
+
+            <tr style="height:5px; border:none;"><td colspan="4" style="border:none"></td></tr>
+
+            <tr>
+              <td style="text-align:left">Wajib Belanja</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Wajib_Belanja" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Wajib_Belanja" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Wajib_Belanja" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Dana Sosial</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Dana_Sosial" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Dana_Sosial" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Dana_Sosial" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Potongan Dinas</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Potongan_Dinas" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Potongan_Dinas" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Potongan_Dinas" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="text-align:left">Admin Bank</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Admin_Bank" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-grn"><input class="paper-input" id="Admin_Bank" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Admin_Bank" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            
+            <tr style="border-top:2px solid black">
+              <td style="font-weight:bold; text-align:left">Bayar Langsung</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Bayar_Langsung" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-pnk"><input class="paper-input" id="Bayar_Langsung" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Bayar_Langsung" onkeyup="formatRupiah(this)"></td>
+            </tr>
+            <tr>
+              <td style="font-weight:bold; text-align:left">TOTAL POTONGAN</td>
+              <td class="bg-gry"><input class="paper-input" id="Awal_Jumlah_Potongan" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-pnk" style="font-weight:bold; font-size:14px;"><input class="paper-input" id="Jumlah_Potongan" onkeyup="formatRupiah(this)"></td>
+              <td class="bg-gry"><input class="paper-input" id="Akhir_Jumlah_Potongan" onkeyup="formatRupiah(this)"></td>
+            </tr>
+
+            <tr><td></td><td class="bg-ylw" style="height:10px"></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+
+        <div style="display:flex; justify-content:flex-end; margin-top:40px;">
+          <div style="text-align:center; width:200px;">
+            <div style="margin-bottom:70px;">Blitar, <span id="footer-date">...</span></div>
+            <div style="font-weight:bold; border-top:1px solid black; padding-top:5px; display:inline-block; width:150px;">Bendahara</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:25px; display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn-logout" style="margin-right:auto;" onclick="doLogout()">KELUAR</button>
+        <button id="btn-simpan" class="btn-blue" onclick="saveDataAPI()">SIMPAN DATA</button>
+        <button id="btn-download" class="btn-red" onclick="createPdfAPI()">DOWNLOAD PDF</button>
+      </div>
+    </div>
+
+    <script>
+      // ==========================================
+      // URL APPS SCRIPT WAJIB DIISI!
+      // ==========================================
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzS77YOJGgBVtbXL7QC54KKG3WC-GeY1faBySHaUAwlZi6uHHPkYD1pwPkrKctYJ8Qk/exec"; 
+
+      function formatRupiah(input) {
+        let val = input.value.replace(/\./g, '');
+        if (!isNaN(val) && val !== "") input.value = val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      }
+
+      function showLoading(show) { document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
+      function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
+
+      function showModal(title, message, type) {
+        const overlay = document.getElementById('modal-overlay');
+        const header = document.getElementById('modal-header');
+        const body = document.getElementById('modal-body');
+        const footer = document.getElementById('modal-footer');
+        header.className = 'modal-header ' + type;
+        header.innerHTML = (type === 'success' ? '✅ ' : '⚠️ ') + title;
+        body.innerHTML = message;
+        footer.innerHTML = `<button onclick="closeModal()" style="background:#ddd; color:#333;">Tutup</button>`;
+        overlay.style.display = 'flex';
+      }
+
+      function autoRefreshData() {
+        if(window.currentUser && window.currentUser.role !== 'admin') {
+           cariAnggota();
+        }
+      }
+
+      async function doAppLogin() {
+        const code = document.getElementById('login-code').value;
+        if(!code) return showModal("Peringatan", "Harap masukkan Kode Anggota atau Nama!", "error");
+        
+        showLoading(true); // START LOADING
+        
+        let resUser = await sendToGoogle('login', code);
+        if(resUser.status !== 'success') {
+          showLoading(false); document.getElementById('login-code').value = "";
+          return showModal("Gagal Masuk", "Data Anggota tidak ditemukan.", "error");
+        }
+        window.currentUser = resUser;
+        document.getElementById('view-login').style.display = 'none';
+        document.getElementById('view-app').style.display = 'block';
+        document.getElementById('admin-month').selectedIndex = new Date().getMonth();
+        
+        if(resUser.role === 'admin') {
+           document.getElementById('input-kode').style.display = 'inline-block';
+           document.getElementById('btn-cari').style.display = 'inline-block';
+           document.getElementById('btn-simpan').style.display = 'inline-block';
+           document.getElementById('btn-download').style.display = 'inline-block';
+           document.querySelectorAll('.paper-input').forEach(el => el.disabled = false);
+           document.getElementById('input-kode').focus();
+        } 
+        else {
+           document.getElementById('input-kode').value = resUser.kode; 
+           document.getElementById('input-kode').style.display = 'none';
+           document.getElementById('btn-cari').style.display = 'none';
+           document.getElementById('btn-simpan').style.display = 'none';
+           document.getElementById('btn-download').style.display = 'none';
+           document.querySelectorAll('.paper-input').forEach(el => el.disabled = true);
+           
+           // Admin tidak perlu panggil cariAnggota disini karena dia manual cari.
+           // User biasa otomatis panggil.
+           await cariAnggota(); 
+        }
+
+        showLoading(false); // END LOADING
+      }
+
+      async function cariAnggota() {
+        let kode = document.getElementById('input-kode').value;
+        if(window.currentUser.role !== 'admin') kode = window.currentUser.kode;
+
+        const bln = document.getElementById('admin-month').value;
+        const thn = document.getElementById('admin-year').value;
+        if(!kode) return showModal("Info", "Masukkan kode anggota.", "error");
+
+        showLoading(true); // START LOADING - Tampilan Blur
+
+        // 1. Bersihkan Data Lama dulu (Agar terlihat fresh)
+        document.querySelectorAll('.paper-input').forEach(el => el.value = "");
+        document.getElementById('disp-nama').innerText = "Memuat...";
+        document.getElementById('disp-no-anggota').innerText = "---";
+        
+        // 2. Cek User Validitas
+        let resUser = await sendToGoogle('login', kode);
+        if(resUser.status !== 'success') { 
+            showLoading(false); 
+            return showModal("404", "Anggota tidak ditemukan!", "error"); 
+        }
+
+        document.getElementById('disp-nama').innerText = resUser.nama;
+        document.getElementById('disp-no-anggota').innerText = resUser.kode;
+        document.getElementById('disp-bulan').innerText = bln;
+        document.getElementById('disp-tahun').innerText = thn;
+        document.getElementById('footer-date').innerText = bln + " " + thn;
+
+        // 3. Ambil Data Transaksi
+        let resData = await sendToGoogle('getData', { bulan: bln, tahun: thn, kode: resUser.kode });
+        
+        if(resData.status === 'found') {
+          const d = resData.data;
+          // Isi data perlahan
+          for(let key in d) { 
+            let el = document.getElementById(key); 
+            if(el) el.value = d[key]; 
+          }
+        }
+        
+        showLoading(false); // END LOADING - Blur Hilang
+      }
+
+      async function saveDataAPI() {
+        if(window.currentUser.role !== 'admin') return; 
+        const no = document.getElementById('disp-no-anggota').innerText;
+        if(no === "---") return showModal("Error", "Silakan cari data anggota terlebih dahulu.", "error");
+        
+        showLoading(true);
+        
+        let formData = { 'Bulan': document.getElementById('admin-month').value, 'Tahun': document.getElementById('admin-year').value, 'No_Anggota': no };
+        document.querySelectorAll('.paper-input').forEach(inp => { if(inp.id) formData[inp.id] = inp.value; });
+        
+        let res = await sendToGoogle('saveData', formData);
+        
+        showLoading(false);
+        if(res.status === 'success') showModal("Sukses", "Data berhasil disimpan.", "success");
+        else showModal("Gagal", "Gagal menyimpan: " + res.message, "error");
+      }
+
+      async function createPdfAPI() {
+        const no = document.getElementById('disp-no-anggota').innerText;
+        const nama = document.getElementById('disp-nama').innerText;
+        const bulan = document.getElementById('disp-bulan').innerText;
+        const tahun = document.getElementById('disp-tahun').innerText;
+        if(no === "---") return showModal("Error", "Data kosong.", "error");
+
+        showLoading(true);
+
+        let printElement = document.getElementById('print-area').cloneNode(true);
+        let inputs = printElement.querySelectorAll('input');
+        inputs.forEach(input => {
+            let span = document.createElement('span');
+            span.innerText = input.value; 
+            span.style.fontWeight = "bold"; 
+            span.style.display = "block"; 
+            span.style.textAlign = "center";
+            input.parentNode.replaceChild(span, input);
+        });
+
+        let logoImg = printElement.querySelector('.kop-logo');
+        if(logoImg) {
+            logoImg.removeAttribute("src");
+            logoImg.setAttribute("src", "###LOGO_BASE64###"); 
+            logoImg.setAttribute("width", "80"); logoImg.setAttribute("height", "80");
+        }
+
+        const css = `<style>
+            @page { size: A4; margin: 10mm; }
+            body { font-family: sans-serif; margin: 0; padding: 0; width: 100%; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 5px; }
+            th, td { border: 1px solid #444; padding: 4px; } 
+            th { background-color: #bbdefb !important; font-weight: bold; }
+            .header-kop { display: flex; border-bottom: 2px solid black; margin-bottom: 10px; padding-bottom: 5px; }
+            .header-left { width: 80px; } .header-right { width: 80px; } 
+            .header-center { flex: 1; text-align: center; }
+            .kop-title { font-weight: bold; font-size: 14px; }
+            .kop-subtitle { font-weight: bold; font-size: 16px; color: #000; }
+            .nomor-anggota-badge { border: 2px solid black; padding: 5px; font-weight: bold; font-size: 14px; text-align:right; }
+            .bg-org { background: #ffccbc !important; } .bg-grn { background: #c8e6c9 !important; } 
+            .bg-blu { background: #90caf9 !important; } .bg-gry { background: #f5f5f5 !important; } 
+            .bg-pnk { background: #f8bbd0 !important; } .bg-ylw { background: #ffe0b2 !important; }
+        </style>`;
+        
+        const fullHtml = `<html><head>${css}</head><body>${printElement.innerHTML}</body></html>`;
+        const filename = `${no}_${bulan}_${tahun}_${nama}.pdf`;
+
+        let res = await sendToGoogle('createPDF', { html: fullHtml, filename: filename });
+        showLoading(false);
+        if(res.status === 'success') {
+            const overlay = document.getElementById('modal-overlay');
+            const header = document.getElementById('modal-header');
+            const body = document.getElementById('modal-body');
+            const footer = document.getElementById('modal-footer');
+            header.className = 'modal-header success';
+            header.innerHTML = `✅ PDF Berhasil`;
+            body.innerHTML = `File PDF tersimpan dengan nama:<br><b>${res.name}</b>`;
+            footer.innerHTML = `<button onclick="closeModal()" style="background:#ddd; color:#333;">Tutup</button><button onclick="window.open('${res.url}', '_blank')" style="background:#2e7d32; color:white;">Buka PDF</button>`;
+            overlay.style.display = 'flex';
+        } else {
+            showModal("Gagal PDF", res.message, "error");
+        }
+      }
+
+      function doLogout() { location.reload(); }
+      function sendToGoogle(action, payload) {
+        return new Promise((resolve, reject) => {
+          fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: action, payload: payload }) })
+          .then(response => response.json()).then(data => resolve(data)).catch(error => resolve({ status: 'error', message: error }));
+        });
+      }
+    </script>
+  </body>
+</html>
