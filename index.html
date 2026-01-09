@@ -9,11 +9,31 @@
     
     <style>
       /* --- GLOBAL STYLE --- */
-      body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-      .container { max-width: 950px; margin: 0 auto; background: white; padding: 40px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); border-radius: 10px; }
+      body { 
+        font-family: 'Segoe UI', sans-serif; 
+        background: #f0f2f5; 
+        margin: 0; 
+        padding: 20px; 
+        color: #333; 
+      }
+      .container { 
+        max-width: 950px; 
+        margin: 0 auto; 
+        background: white; 
+        padding: 40px; 
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08); 
+        border-radius: 10px; 
+      }
 
       /* --- HEADER KOP --- */
-      .header-kop { display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+      .header-kop { 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        border-bottom: 3px solid #333; 
+        padding-bottom: 10px; 
+        margin-bottom: 20px; 
+      }
       .header-left { flex: 0 0 100px; }
       .kop-logo { width: 90px; height: auto; object-fit: contain; }
       .header-center { flex: 1; text-align: center; }
@@ -21,18 +41,68 @@
       .kop-subtitle { font-weight: 700; font-size: 22px; color: #1b5e20; margin-bottom: 5px; }
       .kop-date { font-size: 14px; font-weight: 500; color: #555; }
       .header-right { flex: 0 0 100px; display: flex; justify-content: flex-end; }
-      .nomor-anggota-badge { background: #fff9c4; border: 2px solid #333; padding: 8px 12px; font-size: 18px; font-weight: 800; border-radius: 6px; box-shadow: 4px 4px 0px rgba(0,0,0,0.8); min-width: 60px; text-align: center; }
+      .nomor-anggota-badge { 
+        background: #fff9c4; 
+        border: 2px solid #333; 
+        padding: 8px 12px; 
+        font-size: 18px; 
+        font-weight: 800; 
+        border-radius: 6px; 
+        box-shadow: 4px 4px 0px rgba(0,0,0,0.8); 
+        min-width: 60px; 
+        text-align: center; 
+      }
 
       /* --- CONTROLS --- */
-      .search-box { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #bbdefb; }
-      input, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; outline: none; }
+      .search-box { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 10px; 
+        margin-bottom: 10px; 
+        background: #e3f2fd; 
+        padding: 15px; 
+        border-radius: 8px; 
+        border: 1px solid #bbdefb; 
+        align-items: center; 
+      }
+      
+      /* New User Box (Admin Only - Orange Theme) */
+      .add-user-box { 
+        display: flex; 
+        flex-wrap: wrap; 
+        gap: 10px; 
+        margin-bottom: 20px; 
+        background: #fff3e0; 
+        padding: 15px; 
+        border-radius: 8px; 
+        border: 1px solid #ffe0b2; 
+        align-items: center; 
+      }
+
+      input, select { 
+        padding: 10px; 
+        border: 1px solid #ccc; 
+        border-radius: 5px; 
+        font-size: 14px; 
+        outline: none; 
+      }
       input:focus, select:focus { border-color: #1976d2; }
       
-      button { padding: 10px 18px; border: none; border-radius: 5px; font-weight: 600; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+      button { 
+        padding: 10px 18px; 
+        border: none; 
+        border-radius: 5px; 
+        font-weight: 600; 
+        cursor: pointer; 
+        transition: 0.2s; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+      }
       button:active { transform: scale(0.98); }
+      
       .btn-cari { background: #2e7d32; color: white; } .btn-cari:hover { background: #1b5e20; }
       .btn-blue { background: #1565c0; color: white; } .btn-blue:hover { background: #0d47a1; }
       .btn-red { background: #c62828; color: white; } .btn-red:hover { background: #b71c1c; }
+      .btn-org { background: #ef6c00; color: white; } .btn-org:hover { background: #e65100; }
       .btn-logout { background: #546e7a; color: white; } .btn-logout:hover { background: #455a64; }
 
       /* --- TABEL --- */
@@ -40,14 +110,27 @@
       th, td { border: 1px solid #666; padding: 6px; vertical-align: middle; }
       th { background-color: #bbdefb; text-align: center; font-weight: bold; color: #000; }
       
-      .paper-input { width: 100%; border: none; outline: none; font-family: inherit; font-size: inherit; text-align: center; background: transparent; color: #000; font-weight: 500; }
+      .paper-input { 
+        width: 100%; 
+        border: none; 
+        outline: none; 
+        font-family: inherit; 
+        font-size: inherit; 
+        text-align: center; 
+        background: transparent; 
+        color: #000; 
+        font-weight: 500; 
+      }
       .paper-input:focus { background: #fffbe6; border-bottom: 2px solid #1565c0; }
       .paper-input:disabled { background: transparent; color: #333; cursor: default; border-bottom: none; }
 
       /* COLORS */
-      .bg-org { background: #ffccbc !important; } .bg-grn { background: #c8e6c9 !important; } 
-      .bg-blu { background: #90caf9 !important; } .bg-gry { background: #f5f5f5 !important; } 
-      .bg-pnk { background: #f8bbd0 !important; } .bg-ylw { background: #ffe0b2 !important; }
+      .bg-org { background: #ffccbc !important; } 
+      .bg-grn { background: #c8e6c9 !important; } 
+      .bg-blu { background: #90caf9 !important; } 
+      .bg-gry { background: #f5f5f5 !important; } 
+      .bg-pnk { background: #f8bbd0 !important; } 
+      .bg-ylw { background: #ffe0b2 !important; }
 
       /* --- LOADING OVERLAY DENGAN BLUR --- */
       #loading-overlay { 
@@ -62,10 +145,15 @@
         align-items: center; justify-content: center; 
         flex-direction: column;
       }
-      
-      .spinner { border: 5px solid #e0e0e0; border-top: 5px solid #2e7d32; border-radius: 50%; width: 50px; height: 50px; animation: spin 0.8s linear infinite; margin-bottom: 15px; }
+      .spinner { 
+        border: 5px solid #e0e0e0; 
+        border-top: 5px solid #2e7d32; 
+        border-radius: 50%; 
+        width: 50px; height: 50px; 
+        animation: spin 0.8s linear infinite; 
+        margin-bottom: 15px; 
+      }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-      
       .loading-text { font-weight: 700; color: #2e7d32; font-size: 16px; text-shadow: 0 1px 2px rgba(255,255,255,0.8); }
 
       /* --- MODAL --- */
@@ -90,7 +178,6 @@
         <div class="spinner"></div>
         <div class="loading-text">Sedang Memuat Data...</div>
     </div>
-
     <div id="modal-overlay"><div class="modal-box"><div id="modal-header" class="modal-header"></div><div id="modal-body" class="modal-body"></div><div id="modal-footer" class="modal-footer"></div></div></div>
 
     <div id="view-login">
@@ -106,6 +193,7 @@
     </div>
 
     <div id="view-app" class="container" style="display:none;">
+      
       <div class="search-box">
         <select id="admin-month" style="flex:1; min-width:100px;" onchange="autoRefreshData()">
           <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option><option value="April">April</option>
@@ -116,6 +204,13 @@
         
         <input type="text" id="input-kode" placeholder="Cari Anggota Lain..." style="flex:2;" onkeydown="if(event.key === 'Enter') cariAnggota()">
         <button id="btn-cari" class="btn-cari" onclick="cariAnggota()">CARI DATA</button>
+      </div>
+
+      <div id="admin-add-user-box" class="add-user-box" style="display:none;">
+        <div style="flex-basis: 100%; font-weight: bold; color: #ef6c00; font-size: 13px; margin-bottom: -5px;">Tambah Anggota Baru:</div>
+        <input type="text" id="new-user-code" placeholder="No. Anggota" style="flex: 0 0 120px;">
+        <input type="text" id="new-user-name" placeholder="Nama Anggota Lengkap" style="flex: 1;">
+        <button class="btn-org" onclick="addNewUserAPI()">SIMPAN</button>
       </div>
 
       <div id="print-area" style="background:white; padding:10px;">
@@ -346,9 +441,9 @@
 
     <script>
       // ==========================================
-      // URL APPS SCRIPT WAJIB DIISI!
+      // GANTI URL SCRIPT GOOGLE APPS SCRIPT ANDA DI SINI!
       // ==========================================
-      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzS77YOJGgBVtbXL7QC54KKG3WC-GeY1faBySHaUAwlZi6uHHPkYD1pwPkrKctYJ8Qk/exec"; 
+      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5jTQB0MRLZmvMxEqA9TMRLaFruigGqmDI8Nd4Sp87QCVJjg_fFp8Gie0Ydhomd4V5/exec"; 
 
       function formatRupiah(input) {
         let val = input.value.replace(/\./g, '');
@@ -397,6 +492,10 @@
            document.getElementById('btn-cari').style.display = 'inline-block';
            document.getElementById('btn-simpan').style.display = 'inline-block';
            document.getElementById('btn-download').style.display = 'inline-block';
+           
+           // Tampilkan Menu Tambah Anggota (Admin Only)
+           document.getElementById('admin-add-user-box').style.display = 'flex'; 
+           
            document.querySelectorAll('.paper-input').forEach(el => el.disabled = false);
            document.getElementById('input-kode').focus();
         } 
@@ -406,6 +505,10 @@
            document.getElementById('btn-cari').style.display = 'none';
            document.getElementById('btn-simpan').style.display = 'none';
            document.getElementById('btn-download').style.display = 'none';
+           
+           // Sembunyikan Menu Tambah Anggota
+           document.getElementById('admin-add-user-box').style.display = 'none';
+           
            document.querySelectorAll('.paper-input').forEach(el => el.disabled = true);
            
            await cariAnggota(); 
@@ -422,7 +525,7 @@
         const thn = document.getElementById('admin-year').value;
         if(!kode) return showModal("Info", "Masukkan kode anggota.", "error");
 
-        showLoading(true); // START LOADING - Tampilan Blur
+        showLoading(true); // START LOADING
 
         document.querySelectorAll('.paper-input').forEach(el => el.value = "");
         document.getElementById('disp-nama').innerText = "Memuat...";
@@ -450,7 +553,7 @@
           }
         }
         
-        showLoading(false); // END LOADING - Blur Hilang
+        showLoading(false); // END LOADING
       }
 
       async function saveDataAPI() {
@@ -468,6 +571,27 @@
         showLoading(false);
         if(res.status === 'success') showModal("Sukses", "Data berhasil disimpan.", "success");
         else showModal("Gagal", "Gagal menyimpan: " + res.message, "error");
+      }
+
+      // --- FUNGSI BARU: TAMBAH ANGGOTA ---
+      async function addNewUserAPI() {
+        if(window.currentUser.role !== 'admin') return;
+        const newCode = document.getElementById('new-user-code').value.trim().toString(); // Force String
+        const newName = document.getElementById('new-user-name').value.trim();
+
+        if(!newCode || !newName) return showModal("Input Kurang", "Harap isi No. Anggota dan Nama Anggota.", "error");
+
+        showLoading(true);
+        let res = await sendToGoogle('addUser', { kode: newCode, nama: newName });
+        showLoading(false);
+
+        if(res.status === 'success') {
+          showModal("Sukses", `Anggota <b>${newName}</b> (${newCode}) berhasil ditambahkan!`, "success");
+          document.getElementById('new-user-code').value = "";
+          document.getElementById('new-user-name').value = "";
+        } else {
+          showModal("Gagal", res.message, "error");
+        }
       }
 
       async function createPdfAPI() {
@@ -544,4 +668,3 @@
     </script>
   </body>
 </html>
-
