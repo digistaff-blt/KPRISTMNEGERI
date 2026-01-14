@@ -450,6 +450,22 @@
         if (!isNaN(val) && val !== "") input.value = val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
       }
 
+      // --- Tambahkan fungsi ini di bawah function formatRupiah(input) ---
+
+function smartFormat(value) {
+  if (value === null  value === undefined  value === "") return "";
+  
+  // 1. Ubah ke string
+  let valStr = value.toString();
+  
+  // 2. Bersihkan semua karakter KECUALI angka (0-9)
+  // Ini akan mengubah "10,000" -> "10000", "10.000" -> "10000", "10000" -> "10000"
+  let cleanVal = valStr.replace(/[^\d]/g, "");
+  
+  // 3. Format ulang dengan titik setiap 3 digit (Format Indonesia)
+  return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+      
       function showLoading(show) { document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none'; }
       function closeModal() { document.getElementById('modal-overlay').style.display = 'none'; }
 
@@ -549,7 +565,19 @@
           const d = resData.data;
           for(let key in d) { 
             let el = document.getElementById(key); 
-            if(el) el.value = d[key]; 
+            if(el) {
+               // CEK CERDAS: Apakah input ini adalah input rupiah?
+               // Kita cek apakah elemen tersebut memiliki atribut 'onkeyup="formatRupiah(this)"'
+               let onKeyAttr = el.getAttribute('onkeyup');
+               
+               if (onKeyAttr && onKeyAttr.includes('formatRupiah')) {
+                  // Jika ya, gunakan smartFormat agar tampilan jadi 10.000
+                  el.value = smartFormat(d[key]);
+               } else {
+                  // Jika bukan (misal: Tanggal, Jangka Waktu, Keterangan), biarkan apa adanya
+                  el.value = d[key];
+               }
+            } 
           }
         }
         
@@ -668,4 +696,5 @@
     </script>
   </body>
 </html>
+
 
