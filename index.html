@@ -8,7 +8,7 @@
     <link rel="icon" href="https://drive.google.com/thumbnail?id=1au2P07QwprsHSGBH6_G9UATZhupRPc_m&sz=s64" type="image/png">
     
     <style>
-      /* --- GLOBAL STYLE --- */
+      /* --- GLOBAL STYLE -ini buatan MUAHAMAD ZAINUDIN ANWAR, S.H.-- */
       body { 
         font-family: 'Segoe UI', sans-serif; 
         background: #f0f2f5; 
@@ -481,6 +481,24 @@ function smartFormat(value) {
         overlay.style.display = 'flex';
       }
 
+        // --- FUNGSI BARU: Format Tanggal (DD-MM-YYYY) ---
+      function formatTanggal(value) {
+        if (!value) return "";
+        
+        // Coba ubah data menjadi format Tanggal
+        let d = new Date(value);
+        
+        // Jika datanya bukan tanggal valid, kembalikan aslinya
+        if (isNaN(d.getTime())) return value;
+
+        // Ambil Tanggal, Bulan, Tahun
+        let tgl = d.getDate().toString().padStart(2, '0');     // 1 -> 01
+        let bln = (d.getMonth() + 1).toString().padStart(2, '0'); // Januari (0) -> 01
+        let thn = d.getFullYear();
+
+        return ${tgl}-${bln}-${thn};
+      }
+      
       function autoRefreshData() {
         if(window.currentUser && window.currentUser.role !== 'admin') {
            cariAnggota();
@@ -533,20 +551,43 @@ function smartFormat(value) {
         showLoading(false); // END LOADING
       }
 
+       MUHANAD ZAINUDIN ANWAR, S.H., [14/01/2026 14:33]
+// --- FUNGSI BARU: Format Tanggal (DD-MM-YYYY) ---
+      function formatTanggal(value) {
+        if (!value) return "";
+        
+        // Coba ubah data menjadi format Tanggal
+        let d = new Date(value);
+        
+        // Jika datanya bukan tanggal valid, kembalikan aslinya
+        if (isNaN(d.getTime())) return value;
+
+        // Ambil Tanggal, Bulan, Tahun
+        let tgl = d.getDate().toString().padStart(2, '0');     // 1 -> 01
+        let bln = (d.getMonth() + 1).toString().padStart(2, '0'); // Januari (0) -> 01
+        let thn = d.getFullYear();
+
+        return ${tgl}-${bln}-${thn};
+      }
+// --- FUNGSI CARI ANGGOTA (UPDATE TANGGAL & UANG) ---
       async function cariAnggota() {
         let kode = document.getElementById('input-kode').value;
-        if(window.currentUser.role !== 'admin') kode = window.currentUser.kode;
+        if(window.currentUser && window.currentUser.role !== 'admin') {
+           kode = window.currentUser.kode;
+        }
 
         const bln = document.getElementById('admin-month').value;
         const thn = document.getElementById('admin-year').value;
+        
         if(!kode) return showModal("Info", "Masukkan kode anggota.", "error");
 
-        showLoading(true); // START LOADING
+        showLoading(true);
 
         document.querySelectorAll('.paper-input').forEach(el => el.value = "");
         document.getElementById('disp-nama').innerText = "Memuat...";
         document.getElementById('disp-no-anggota').innerText = "---";
         
+        // 1. Login User
         let resUser = await sendToGoogle('login', kode);
         if(resUser.status !== 'success') { 
             showLoading(false); 
@@ -559,6 +600,7 @@ function smartFormat(value) {
         document.getElementById('disp-tahun').innerText = thn;
         document.getElementById('footer-date').innerText = bln + " " + thn;
 
+        // 2. Ambil Data
         let resData = await sendToGoogle('getData', { bulan: bln, tahun: thn, kode: resUser.kode });
         
         if(resData.status === 'found') {
@@ -566,22 +608,26 @@ function smartFormat(value) {
           for(let key in d) { 
             let el = document.getElementById(key); 
             if(el) {
-               // CEK CERDAS: Apakah input ini adalah input rupiah?
-               // Kita cek apakah elemen tersebut memiliki atribut 'onkeyup="formatRupiah(this)"'
                let onKeyAttr = el.getAttribute('onkeyup');
-               
+               let keyName = key.toLowerCase(); // Ubah nama ID jadi huruf kecil untuk pengecekan
+
+               // A. JIKA KOLOM UANG (Ada formatRupiah)
                if (onKeyAttr && onKeyAttr.includes('formatRupiah')) {
-                  // Jika ya, gunakan smartFormat agar tampilan jadi 10.000
                   el.value = smartFormat(d[key]);
-               } else {
-                  // Jika bukan (misal: Tanggal, Jangka Waktu, Keterangan), biarkan apa adanya
+               } 
+               // B. JIKA KOLOM TANGGAL (ID mengandung kata 'tgl' atau 'tanggal')
+               else if (keyName.includes('tgl') || keyName.includes('tanggal')) {
+                  el.value = formatTanggal(d[key]);
+               }
+               // C. JIKA BIASA
+               else {
                   el.value = d[key];
                }
             } 
           }
         }
         
-        showLoading(false); // END LOADING
+        showLoading(false);
       }
 
       async function saveDataAPI() {
@@ -696,6 +742,7 @@ function smartFormat(value) {
     </script>
   </body>
 </html>
+
 
 
 
